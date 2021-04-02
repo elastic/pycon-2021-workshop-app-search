@@ -1,0 +1,6 @@
+app_search:
+  # Add the Enterprise Search instance URL (example: 'http://...')
+  url: "<...>"
+
+  # Add the App Search private key (eg 'private-...')
+  private_key: "private-<...>"

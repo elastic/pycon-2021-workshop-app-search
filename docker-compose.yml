@@ -1,0 +1,73 @@
+version: "3"
+
+services:
+  es1:
+    image: "docker.elastic.co/elasticsearch/elasticsearch:7.12.0"
+    environment:
+      "node.name": "es1"
+      "cluster.name": "es"
+      "cluster.initial_master_nodes": "es1"
+      "discovery.seed_hosts": "es1"
+      "cluster.routing.allocation.disk.threshold_enabled": "false"
+      "bootstrap.memory_lock": "true"
+      "node.attr.testattr": "test"
+      "path.repo": "/tmp"
+      "repositories.url.allowed_urls": "http://snapshot.test*"
+      "ELASTIC_PASSWORD": "changeme"
+      "xpack.license.self_generated.type": "trial"
+      "xpack.security.enabled": "true"
+      "xpack.security.http.ssl.enabled": "true"
+      "xpack.security.http.ssl.verification_mode": "certificate"
+      "xpack.security.http.ssl.key": "certs/testnode.key"
+      "xpack.security.http.ssl.certificate": "certs/testnode.crt"
+      "xpack.security.http.ssl.certificate_authorities": "certs/ca.crt"
+      "xpack.security.transport.ssl.enabled": "true"
+      "xpack.security.transport.ssl.key": "certs/testnode.key"
+      "xpack.security.transport.ssl.certificate": "certs/testnode.crt"
+      "xpack.security.transport.ssl.certificate_authorities": "certs/ca.crt"
+      "ES_JAVA_OPTS": "-Xms1g -Xmx1g"
+    volumes:
+      - "./certs/testnode.crt:/usr/share/elasticsearch/config/certs/testnode.crt:ro"
+      - "./certs/testnode.key:/usr/share/elasticsearch/config/certs/testnode.key:ro"
+      - "./certs/ca.crt:/usr/share/elasticsearch/config/certs/ca.crt:ro"
+    ulimits:
+      nofile: 65536
+      memlock: -1
+    healthcheck:
+      test: "curl --insecure --cacert /usr/share/elasticsearch/config/certs/ca.crt --resolve es1:443:127.0.0.1 --fail https://es1/_cluster/health || exit 1"
+      retries: 20
+      timeout: "2s"
+      interval: "2s"
+
+  ent1:
+    image: "docker.elastic.co/enterprise-search/enterprise-search:7.12.0"
+    environment:
+      "ENT_SEARCH_DEFAULT_PASSWORD": "changeme"
+      "elasticsearch.host": "https://es1:9200"
+      "elasticsearch.username": "elastic"
+      "elasticsearch.password": "changeme"
+      "secret_management.encryption_keys": "[int_test_secret]"
+      "enterprise_search.listen_port": "3002"
+      "log_level": "info"
+      "hide_version_info": "false"
+      "worker.threads": "2"
+      "allow_es_settings_modification": "true"
+      "JAVA_OPTS": "-Xms1g -Xmx1g"
+      "elasticsearch.ssl.enabled": "true"
+      "elasticsearch.ssl.verify": "true"
+      "elasticsearch.ssl.certificate": "/usr/share/app-search/config/certs/testnode.crt"
+      "elasticsearch.ssl.certificate_authority": "/usr/share/app-search/config/certs/ca.crt"
+      "elasticsearch.ssl.key": "/usr/share/app-search/config/certs/testnode.key"
+    healthcheck:
+      test: "curl --insecure --resolve ent1:443:127.0.0.1 --fail https://ent1/_cluster/health || exit 1"
+      retries: 20
+      timeout: "2s"
+      interval: "2s"
+    ports:
+    - "127.0.0.1:3002:3002"
+    volumes:
+      - "./certs/testnode.crt:/usr/share/app-search/config/certs/testnode.crt:ro"
+      - "./certs/testnode.key:/usr/share/app-search/config/certs/testnode.key:ro"
+      - "./certs/ca.crt:/usr/share/app-search/config/certs/ca.crt:ro"
+    depends_on:
+      - es1
