@@ -1,5 +1,9 @@
 # Searchable Django Applications with Elastic App Search (PyCon US 2021)
 
+## Where are the slides for the Workshop?
+
+[Here they are!](https://github.com/elastic/pycon-2021-workshop-app-search/blob/main/slides.pdf)
+
 ## What to do before the Workshop?
 
 - Fork / Clone the repository
