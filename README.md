@@ -50,7 +50,7 @@
 
 - Download and install [docker-compose](https://docs.docker.com/compose)
 - With an open terminal in the cloned git repository run `docker-compose up`.
-  Wait for all services to 
+  Wait for all services to spin up and configure for the first time which may take a minute.
 - You should be able to connect to `http://localhost:3002` in a browser
 - Open `config.yml` and set `url` field to be `"http://localhost:3002"`
   and run the script and ensure it passes without error.
